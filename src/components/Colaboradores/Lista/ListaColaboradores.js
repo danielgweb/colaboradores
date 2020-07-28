@@ -1,9 +1,6 @@
 import React, {Component} from 'react';
 // import './Login.css';
 import CardDeck from "react-bootstrap/CardDeck";
-import Card from "react-bootstrap/Card";
-import ListGroup from "react-bootstrap/ListGroup";
-import ListGroupItem from "react-bootstrap/ListGroupItem";
 import _ from "lodash";
 import {connect} from "react-redux";
 import Colaborador from "../Colaborador/Colaborador"
