@@ -5,7 +5,6 @@ import Jumbotron from 'react-bootstrap/Jumbotron';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -13,8 +12,8 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import Paginacao from '../Paginacao/Paginacao'
 import ListaColaboradores from "./Lista/ListaColaboradores";
 import api from "../../services/api";
-import { faSearch, faPlus, faUsers } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faPlus, faSearch, faUsers} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const searchTypes = [
     { name: 'Nome'},
@@ -29,12 +28,6 @@ class Colaboradores extends Component {
 
     state = {
         colaboradores: [],
-        ultima_pagina: 0,
-        pagina_atual: 0,
-        vermais_show: true,
-        pages_count: 0,
-        pages_amount: 0,
-
         current_page: 1,
         showmore_show: true,
         size: default_item_amount,
@@ -50,7 +43,6 @@ class Colaboradores extends Component {
             {params: {page: this.state.pages_count, size: default_item_amount}});
 
         this.setState({colaboradores: response.data.content});
-        this.setState({ultima_pagina: response.data.totalPages});
         this.setState({pages_amount: response.data.totalPages});
         this.setState({size: response.data.size});
     }
@@ -61,6 +53,7 @@ class Colaboradores extends Component {
         this.handleSearchType = this.handleSearchType.bind(this);
         this.doSearch = this.doSearch.bind(this);
         this.handleSearchText = this.handleSearchText.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
     }
 
     async handlePagination(pageNum) {
@@ -132,7 +125,7 @@ class Colaboradores extends Component {
                         size: (default_item_amount * (this.state.show_size + 1))
                     }
             });
-        this.setState({current_page: current_page})
+        this.setState({current_page: current_page});
         this.setState({pages_amount: response.data.totalPages});
         this.setState({size: response.data.size});
         if(this.state.current_page === this.state.pages_amount) {
@@ -142,6 +135,12 @@ class Colaboradores extends Component {
         }
         this.setState({show_size: this.state.show_size += 1});
         this.setState({colaboradores: response.data.content});
+    }
+
+    async handleKeyDown(e) {
+        if (e.key === 'Enter') {
+            this.doSearch();
+        }
     }
 
     render() {
@@ -155,34 +154,33 @@ class Colaboradores extends Component {
                     </Row>
                     <Row >
                         <Col>
-                            <Form>
-                                <InputGroup className="mb-1">
-                                    <FormControl
-                                        placeholder="Nome, Cargo, Competência ou Time"
-                                        aria-label="Nome, Cargo, Competência ou Time"
-                                        aria-describedby="basic-addon2"
-                                        onChange={this.handleSearchText}
-                                    />
-                                    <InputGroup.Append>
-                                        <Button variant="outline-secondary" onClick={(e) => this.doSearch()}><FontAwesomeIcon icon={faSearch}/> Buscar</Button>
-                                    </InputGroup.Append>
-                                </InputGroup>
-                                <ButtonGroup toggle>
-                                    {searchTypes.map((searchType, idx) => (
-                                    <ToggleButton
-                                        key={idx}
-                                        type="radio"
-                                        variant="info"
-                                        name="radio"
-                                        value={searchType.name}
-                                        checked={this.state.searchType === searchType.name}
-                                        onChange={(e) => this.handleSearchType(e.currentTarget.value)}
-                                    >
-                                        {searchType.name}
-                                    </ToggleButton>
-                                    ))}
-                                </ButtonGroup>
-                            </Form>
+                            <InputGroup className="mb-1">
+                                <FormControl
+                                    placeholder="Nome, Cargo, Competência ou Time"
+                                    aria-label="Nome, Cargo, Competência ou Time"
+                                    aria-describedby="basic-addon2"
+                                    onChange={this.handleSearchText}
+                                    onKeyDown={this.handleKeyDown}
+                                />
+                                <InputGroup.Append>
+                                    <Button variant="outline-secondary" onClick={(e) => this.doSearch()}><FontAwesomeIcon icon={faSearch}/> Buscar</Button>
+                                </InputGroup.Append>
+                            </InputGroup>
+                            <ButtonGroup toggle>
+                                {searchTypes.map((searchType, idx) => (
+                                <ToggleButton
+                                    key={idx}
+                                    type="radio"
+                                    variant="info"
+                                    name="radio"
+                                    value={searchType.name}
+                                    checked={this.state.searchType === searchType.name}
+                                    onChange={(e) => this.handleSearchType(e.currentTarget.value)}
+                                >
+                                    {searchType.name}
+                                </ToggleButton>
+                                ))}
+                            </ButtonGroup>
                         </Col>
                         <Col><Button variant="primary"><FontAwesomeIcon icon={faPlus} /> Novo</Button>{' '}</Col>
                     </Row>

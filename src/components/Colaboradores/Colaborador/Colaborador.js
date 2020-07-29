@@ -13,13 +13,16 @@ class Colaborador extends Component {
 
             <Card.Body>
                 <Card.Title>{this.props.colaborador.name}</Card.Title>
+                <Card.Text>
+                    Competências <br />
+                    {this.props.colaborador.competencias.map(competencia => (<>[{competencia.name}] </>))}
+                </Card.Text>
             </Card.Body>
             <ListGroup className="list-group-flush">
-                <ListGroupItem>{this.props.colaborador.cargo.name}</ListGroupItem>
-                {/*<ListGroupItem>{this.props.colaborador.competencias}</ListGroupItem>*/}
+                <ListGroupItem>Cargo: {this.props.colaborador.cargo.name}</ListGroupItem>
             </ListGroup>
             <Card.Footer>
-                <small className="text-muted">{this.props.colaborador.time.name}</small>
+                <small className="text-muted">Time: {this.props.colaborador.time.name}</small>
             </Card.Footer>
         </Card>;
     }
