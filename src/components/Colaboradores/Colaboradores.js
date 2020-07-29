@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 // import './Login.css';
+import { Link } from 'react-router-dom'
 import Container from 'react-bootstrap/Container';
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -12,8 +13,9 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import Paginacao from '../Paginacao/Paginacao'
 import ListaColaboradores from "./Lista/ListaColaboradores";
 import api from "../../services/api";
-import {faPlus, faSearch, faUsers} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faSearch, faUsers, faSignOutAlt} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {logout} from "../../services/auth/auth";
 
 const searchTypes = [
     { name: 'Nome'},
@@ -45,6 +47,11 @@ class Colaboradores extends Component {
         this.setState({colaboradores: response.data.content});
         this.setState({pages_amount: response.data.totalPages});
         this.setState({size: response.data.size});
+        if(this.state.current_page === this.state.pages_amount) {
+            this.setState({showmore_show: false});
+        } else if(response.data.totalElements >= default_item_amount) {
+            this.setState({showmore_show: true});
+        }
     }
 
     constructor(props) {
@@ -149,6 +156,13 @@ class Colaboradores extends Component {
                 <Jumbotron>
                     <Row>
                         <Col>
+                            <Link to="/" onClick={() => logout()}>
+                                <Button variant="outline-secondary" className="float-right"><FontAwesomeIcon icon={faSignOutAlt}/> Sair</Button>{' '}
+                            </Link>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
                             <h1 style={{ marginBottom: '2rem' }}><FontAwesomeIcon icon={faUsers}/> Colaboradores</h1>
                         </Col>
                     </Row>
@@ -182,7 +196,11 @@ class Colaboradores extends Component {
                                 ))}
                             </ButtonGroup>
                         </Col>
-                        <Col><Button variant="primary"><FontAwesomeIcon icon={faPlus} /> Novo</Button>{' '}</Col>
+                        <Col>
+                            <Link to="/editor">
+                                <Button variant="primary"><FontAwesomeIcon icon={faPlus} /> Novo</Button>{' '}
+                            </Link>
+                        </Col>
                     </Row>
                     <Row>
                         <Col>

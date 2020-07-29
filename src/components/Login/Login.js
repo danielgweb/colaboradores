@@ -7,6 +7,9 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import api from "../../services/api";
 import {login} from "../../services/auth/auth";
+import Jumbotron from "react-bootstrap/Jumbotron";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faSignInAlt} from "@fortawesome/free-solid-svg-icons";
 
 class Login extends Component {
 
@@ -57,28 +60,34 @@ class Login extends Component {
     render() {
         return (
             <Container>
-            <Row className="justify-content-md-center">
-                <Col md="7">
-                    <Form onSubmit={this.handleSignIn}>
-                        <Form.Group controlId="formBasicEmail">
-                            <Form.Label>Usuário</Form.Label>
-                            <Form.Control type="text" placeholder="Usuário" defaultValue="admin" onChange={this.handleChangeUsername}/>
-                        </Form.Group>
+                <Jumbotron>
+                    <Row>
+                        <Col>
+                            <h1 style={{ marginBottom: '2rem' }}><FontAwesomeIcon icon={faSignInAlt}/> Entrar</h1>
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-md-center">
+                        <Col md="7">
+                            <Form onSubmit={this.handleSignIn}>
+                                <Form.Group controlId="formBasicEmail">
+                                    <Form.Label>Usuário</Form.Label>
+                                    <Form.Control type="text" placeholder="Usuário" defaultValue="admin" onChange={this.handleChangeUsername}/>
+                                </Form.Group>
 
-                        <Form.Group controlId="formBasicPassword">
-                            <Form.Label>Senha</Form.Label>
-                            <Form.Control type="password" placeholder="Senha" defaultValue="password" onChange={this.handleChangePassword}/>
-                        </Form.Group>
-                        <Form.Group controlId="formBasicStatus">
-                            {this.state.error}
-                        </Form.Group>
-                        <Button variant="primary" type="submit">
-                            Entrar
-                        </Button>
-                    </Form>
-                </Col>
-            </Row>
-
+                                <Form.Group controlId="formBasicPassword">
+                                    <Form.Label>Senha</Form.Label>
+                                    <Form.Control type="password" placeholder="Senha" defaultValue="password" onChange={this.handleChangePassword}/>
+                                </Form.Group>
+                                <Form.Group controlId="formBasicStatus">
+                                    {this.state.error}
+                                </Form.Group>
+                                <Button variant="primary" type="submit">
+                                    Entrar
+                                </Button>
+                            </Form>
+                        </Col>
+                    </Row>
+                </Jumbotron>
             </Container>
         );
     }

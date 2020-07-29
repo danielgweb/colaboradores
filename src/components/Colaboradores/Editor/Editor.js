@@ -9,6 +9,10 @@ import Form from "react-bootstrap/Form";
 import no_photo from "../../../no_photo.png";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Jumbotron from "react-bootstrap/Jumbotron";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faUsers} from "@fortawesome/free-solid-svg-icons";
+import {Link} from "react-router-dom";
 
 class Editor extends Component {
 
@@ -33,10 +37,29 @@ class Editor extends Component {
 
     render() {
         return <Container>
-            <Button variant="primary">Salvar</Button>{' '}
+            <Jumbotron>
+                <Row>
+                    <Col>
+                        <h1 style={{ marginBottom: '2rem' }}><FontAwesomeIcon icon={faUsers}/> Adicionar Colaborador</h1>
+                    </Col>
+                </Row>
+                <Row style={{ marginBottom: '2rem' }}>
+                    <Col>
+                        <Link to="/colaboradores">
+                            <Button variant="secondary">Voltar</Button>{' '}
+                        </Link>
+                    </Col>
+                    <Col>
+                        <Button variant="primary" className="float-right">Salvar</Button>{' '}
+                    </Col>
+                </Row>
             <Row lg={1} md={1} sm={1} xl={1} xs={1}>
                 <Col lg={4} md={4} sm={4} xl={4} xs={4}>
-                    <Image src={no_photo} roundedCircle />
+                    <Row className="justify-content-md-center">
+                        <Col md="auto">
+                            <Image src={no_photo} roundedCircle styl={{width:"175px"}}/>
+                        </Col>
+                    </Row>
                 </Col>
                 <Col lg={8} md={8} sm={8} xl={8} xs={8}>
                     <Row lg={1} md={1} sm={1} xl={1} xs={1}>
@@ -72,13 +95,18 @@ class Editor extends Component {
                     </Row>
                 </Col>
             </Row>
-            <h2>Experiências Profissionais</h2>
-            <Button variant="primary" onClick={() => this.showModal('addExp')}>
-                Adicionar
-            </Button>
-            <AdicionarExpProfissional show={this.state.showModal === 'addExp'} onHide={this.hideModal}/>
-            <h2>Competências</h2>
-            <h2>Contatos</h2>
+                <Row>
+                    <Col>
+                        <h2>Experiências Profissionais</h2>
+                        <Button variant="primary" onClick={() => this.showModal('addExp')}>
+                            Adicionar
+                        </Button>
+                        <AdicionarExpProfissional show={this.state.showModal === 'addExp'} onHide={this.hideModal}/>
+                        <h2>Competências</h2>
+                        <h2>Contatos</h2>
+                    </Col>
+                </Row>
+            </Jumbotron>
         </Container>
     }
 }
