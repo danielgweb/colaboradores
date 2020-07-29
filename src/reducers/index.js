@@ -1,8 +1,6 @@
 import {combineReducers} from 'redux';
-// import genreReducer from './genreReducer';
-// import movieReducer from './movieReducer';
+import userReducer from './user';
 
 export default combineReducers ({
-    // genres: genreReducer,
-    // moviesbygenre: movieReducer,
+    users: userReducer,
 });

@@ -8,8 +8,18 @@ import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import ListaColaboradores from "./Lista/ListaColaboradores";
+import api from "../../services/api";
 
 class Colaboradores extends Component {
+
+    state = {
+        colaboradores: [],
+    };
+
+    async componentDidMount() {
+        this.response = await api.get('/colaborador/list');
+        this.setState({ filmes: this.response.data });
+    }
 
     render() {
 
