@@ -13,6 +13,7 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faUsers} from "@fortawesome/free-solid-svg-icons";
 import {Link} from "react-router-dom";
+import Logout from "../../Login/Logout";
 
 class Editor extends Component {
 
@@ -38,6 +39,7 @@ class Editor extends Component {
     render() {
         return <Container>
             <Jumbotron>
+                <Logout />
                 <Row>
                     <Col>
                         <h1 style={{ marginBottom: '2rem' }}><FontAwesomeIcon icon={faUsers}/> Adicionar Colaborador</h1>

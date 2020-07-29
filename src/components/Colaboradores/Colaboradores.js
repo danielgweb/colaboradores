@@ -13,9 +13,9 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import Paginacao from '../Paginacao/Paginacao'
 import ListaColaboradores from "./Lista/ListaColaboradores";
 import api from "../../services/api";
-import {faPlus, faSearch, faUsers, faSignOutAlt} from "@fortawesome/free-solid-svg-icons";
+import {faPlus, faSearch, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {logout} from "../../services/auth/auth";
+import Logout from "../Login/Logout";
 
 const searchTypes = [
     { name: 'Nome'},
@@ -154,13 +154,7 @@ class Colaboradores extends Component {
         return (
             <Container>
                 <Jumbotron>
-                    <Row>
-                        <Col>
-                            <Link to="/" onClick={() => logout()}>
-                                <Button variant="outline-secondary" className="float-right"><FontAwesomeIcon icon={faSignOutAlt}/> Sair</Button>{' '}
-                            </Link>
-                        </Col>
-                    </Row>
+                    <Logout />
                     <Row>
                         <Col>
                             <h1 style={{ marginBottom: '2rem' }}><FontAwesomeIcon icon={faUsers}/> Colaboradores</h1>
