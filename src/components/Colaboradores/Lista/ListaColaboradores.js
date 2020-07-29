@@ -17,9 +17,9 @@ class ListaColaboradores extends Component {
 
         return (
             chunked.map((colaboradores, index) => (
-                    <CardDeck>
-                        {colaboradores.map(colaborador => (
-                            <Colaborador colaborador={colaborador} />
+                    <CardDeck key={index} style={{ marginTop: '1rem' }}>
+                        {colaboradores.map((colaborador, index) => (
+                            <Colaborador key={index} colaborador={colaborador} />
                         ))}
                     </CardDeck>
                 ))
@@ -29,14 +29,7 @@ class ListaColaboradores extends Component {
 
 const mapStateToProps = (state, ownProps) => {
 
-    return {colaboradores: [
-            {nome: "Daniel Garcia 1", cargo: "Desenvolvedor", competencias: ["JavaEE","ReactJS","React Native","Python"], time: "Chapter Back-end"},
-            {nome: "Daniel Garcia 2", cargo: "Desenvolvedor", competencias: ["JavaEE","ReactJS","React Native","Python"], time: "Chapter Front-end"},
-            {nome: "Daniel Garcia 3", cargo: "Desenvolvedor", competencias: ["JavaEE","ReactJS","React Native","Python"], time: "Chapter Front-end"},
-            {nome: "João das Neves 1", cargo: "Analista", competencias: ["Scrum"], time: "Analise de Requisitos"},
-            {nome: "João das Neves 2", cargo: "Analista", competencias: ["Scrum"], time: "Analise de Requisitos"},
-            {nome: "João das Neves 3", cargo: "Analista", competencias: ["Scrum"], time: "Analise de Requisitos"},
-        ]};
+    return {colaboradores: ownProps.colaboradores};
 
 };
 

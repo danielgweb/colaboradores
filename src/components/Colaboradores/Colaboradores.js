@@ -2,11 +2,13 @@ import React, {Component} from 'react';
 // import './Login.css';
 import Container from 'react-bootstrap/Container';
 import Jumbotron from 'react-bootstrap/Jumbotron';
-import Pagination from 'react-bootstrap/Pagination';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Paginacao from '../Paginacao/Paginacao'
 import ListaColaboradores from "./Lista/ListaColaboradores";
 import api from "../../services/api";
 
@@ -14,15 +16,29 @@ class Colaboradores extends Component {
 
     state = {
         colaboradores: [],
+        ultima_pagina: 0,
+        size: 0
     };
 
+
     async componentDidMount() {
-        this.response = await api.get('/colaborador/list');
-        this.setState({ filmes: this.response.data });
+        let response = await api.get('/colaborador/list');
+        this.setState({colaboradores: response.data.content});
+        this.setState({ultima_pagina: Math.ceil(response.data.totalElements/response.data.size)});
+        this.setState({size: response.data.size});
+    }
+
+    constructor(props) {
+        super(props);
+        this.handlePagination = this.handlePagination.bind(this);
+    }
+
+    async handlePagination(pageNum) {
+        let response = await api.get('/colaborador/list', {params: {page: pageNum, size: this.state.size}});
+        this.setState({colaboradores: response.data.content});
     }
 
     render() {
-
         return (
             <Container>
                 <Jumbotron>
@@ -65,30 +81,19 @@ class Colaboradores extends Component {
                         />
                     </Form>
 
-                    <ListaColaboradores />
+                    <ListaColaboradores colaboradores={this.state.colaboradores} />
 
-                    <Pagination>
-                        <Pagination.First />
-                        <Pagination.Prev />
-                        <Pagination.Item>{1}</Pagination.Item>
-                        <Pagination.Ellipsis />
-
-                        <Pagination.Item>{10}</Pagination.Item>
-                        <Pagination.Item>{11}</Pagination.Item>
-                        <Pagination.Item active>{12}</Pagination.Item>
-                        <Pagination.Item>{13}</Pagination.Item>
-                        <Pagination.Item disabled>{14}</Pagination.Item>
-
-                        <Pagination.Ellipsis />
-                        <Pagination.Item>{20}</Pagination.Item>
-                        <Pagination.Next />
-                        <Pagination.Last />
-                    </Pagination>
+                    <Row className="justify-content-md-center">
+                        <Col md="auto">
+                            <Paginacao handler={this.handlePagination}
+                                       ultima_pagina={this.state.ultima_pagina}
+                                       size={this.state.size}/>
+                        </Col>
+                    </Row>
                 </Jumbotron>
             </Container>
         );
     }
 }
-
 
 export default Colaboradores;

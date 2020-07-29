@@ -7,22 +7,18 @@ import React, {Component} from "react";
 class Colaborador extends Component {
 
     render() {
-        return <Card>
-            <Card.Img variant="top" src={no_photo} />
+        return <Card style={{ width: '18rem' }}>
+            <Card.Img variant="top" src={this.props.colaborador.foto === null ? no_photo : this.props.colaborador.foto} />
 
             <Card.Body>
-                <Card.Title>{this.props.colaborador.nome}</Card.Title>
-                <Card.Text>
-                    This is a wider card with supporting text below as a natural lead-in to
-                    additional content. This content is a little bit longer.
-                </Card.Text>
+                <Card.Title>{this.props.colaborador.name}</Card.Title>
             </Card.Body>
             <ListGroup className="list-group-flush">
-                <ListGroupItem>{this.props.colaborador.cargo}</ListGroupItem>
-                <ListGroupItem>{this.props.colaborador.competencias}</ListGroupItem>
+                <ListGroupItem>{this.props.colaborador.cargo.name}</ListGroupItem>
+                {/*<ListGroupItem>{this.props.colaborador.competencias}</ListGroupItem>*/}
             </ListGroup>
             <Card.Footer>
-                <small className="text-muted">{this.props.colaborador.time}</small>
+                <small className="text-muted">{this.props.colaborador.time.name}</small>
             </Card.Footer>
         </Card>;
     }
