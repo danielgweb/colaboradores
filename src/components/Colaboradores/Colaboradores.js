@@ -16,7 +16,7 @@ import api from "../../services/api";
 import { faSearch, faPlus, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const tipos_busca = [
+const searchTypes = [
     { name: 'Nome'},
     { name: 'Cargo'},
     { name: 'Competência'},
@@ -30,51 +30,118 @@ class Colaboradores extends Component {
     state = {
         colaboradores: [],
         ultima_pagina: 0,
-        size: default_item_amount,
-        tipo_busca: 'Nome',
         pagina_atual: 0,
-        vermais_show: true
+        vermais_show: true,
+        pages_count: 0,
+        pages_amount: 0,
+
+        current_page: 1,
+        showmore_show: true,
+        size: default_item_amount,
+        show_size: 1,
+        searchType_holder: 'Nome',
+        search_holder: '',
+        searchType: 'Nome',
+        search: '',
     };
 
     async componentDidMount() {
-        let response = await api.get('/colaborador/list');
+        let response = await api.get('/colaborador/list',
+            {params: {page: this.state.pages_count, size: default_item_amount}});
+
         this.setState({colaboradores: response.data.content});
         this.setState({ultima_pagina: response.data.totalPages});
+        this.setState({pages_amount: response.data.totalPages});
         this.setState({size: response.data.size});
     }
 
     constructor(props) {
         super(props);
         this.handlePagination = this.handlePagination.bind(this);
-        this.handleSearch = this.handleSearch.bind(this);
+        this.handleSearchType = this.handleSearchType.bind(this);
+        this.doSearch = this.doSearch.bind(this);
+        this.handleSearchText = this.handleSearchText.bind(this);
     }
 
     async handlePagination(pageNum) {
-        let response = await api.get('/colaborador/list', {params: {page: pageNum, size: this.state.size}});
-        this.setState({colaboradores: response.data.content});
-        this.setState({pagina_atual: pageNum});
-        if(this.state.size >= response.data.totalElements  - default_item_amount || this.state.pagina_atual === response.data.totalPages) {
-            this.setState({vermais_show: false});
-        } else {
-            this.setState({vermais_show: true});
+        let response = await api.get('/colaborador/find',
+            {params: {
+                    name: this.state.search_holder,
+                    searchType: this.state.searchType_holder,
+                    page: pageNum - 1,
+                    size: (default_item_amount * (this.state.show_size))
+                }
+            });
+        this.setState({current_page: pageNum});
+        this.setState({size: response.data.size});
+        this.setState({pages_amount: response.data.totalPages});
+
+        if(this.state.current_page === this.state.pages_amount) {
+            this.setState({showmore_show: false});
+        } else if(response.data.totalElements >= default_item_amount) {
+            this.setState({showmore_show: true});
         }
-        this.setState({ultima_pagina: response.data.totalPages});
+
+        this.setState({colaboradores: response.data.content});
     }
 
-    handleSearch(type) {
-        this.setState({tipo_busca: type});
+    handleSearchType(type) {
+        this.setState({searchType: type});
+    }
+
+    async doSearch() {
+        let response = await api.get('/colaborador/find',
+            {params: {
+                    name: this.state.search,
+                    searchType: this.state.searchType,
+                    page: 0,
+                    size: default_item_amount
+                }
+            });
+
+        this.setState({searchType_holder: this.state.searchType});
+        this.setState({search_holder: this.state.search});
+        this.setState({current_page: 1});
+        this.setState({size: response.data.size});
+        this.setState({show_size: 1});
+        this.setState({pages_amount: response.data.totalPages});
+
+        if(this.state.current_page === this.state.pages_amount) {
+            this.setState({showmore_show: false});
+        } else if(response.data.totalElements >= default_item_amount) {
+            this.setState({showmore_show: true});
+        }
+
+        this.setState({colaboradores: response.data.content});
+    }
+
+    handleSearchText(event) {
+        this.setState({ search: event.target.value });
     }
 
     async showMore() {
-        this.setState({size: this.state.size += default_item_amount});
-        let response = await api.get('/colaborador/list', {params: {page: this.state.pagina_atual, size: this.state.size}});
-        this.setState({colaboradores: response.data.content});
-        if(this.state.size >= response.data.totalElements  - default_item_amount || this.state.pagina_atual === response.data.totalPages) {
-            this.setState({vermais_show: false});
-        } else {
-            this.setState({vermais_show: true});
+        const last_page = Math.ceil(((
+            default_item_amount * (this.state.show_size + 1)) / this.state.show_size) / default_item_amount
+        );
+        const current_page = this.state.current_page > last_page ? last_page : this.state.current_page;
+        let response = await api.get('/colaborador/find',
+            {params: {
+                        name: this.state.search_holder,
+                        searchType: this.state.searchType_holder,
+                        page: current_page - 1,
+                        size: (default_item_amount * (this.state.show_size + 1))
+                    }
+            });
+        this.setState({current_page: current_page})
+        this.setState({pages_amount: response.data.totalPages});
+        this.setState({size: response.data.size});
+        if(this.state.current_page === this.state.pages_amount) {
+            this.setState({showmore_show: false});
+        } else if(response.data.totalElements >= default_item_amount) {
+            this.setState({showmore_show: true});
         }
-        this.setState({ultima_pagina: response.data.totalPages});
+        this.setState({show_size: this.state.show_size += 1});
+        this.setState({colaboradores: response.data.content});
     }
 
     render() {
@@ -94,23 +161,24 @@ class Colaboradores extends Component {
                                         placeholder="Nome, Cargo, Competência ou Time"
                                         aria-label="Nome, Cargo, Competência ou Time"
                                         aria-describedby="basic-addon2"
+                                        onChange={this.handleSearchText}
                                     />
                                     <InputGroup.Append>
-                                        <Button variant="outline-secondary"><FontAwesomeIcon icon={faSearch}/> Buscar</Button>
+                                        <Button variant="outline-secondary" onClick={(e) => this.doSearch()}><FontAwesomeIcon icon={faSearch}/> Buscar</Button>
                                     </InputGroup.Append>
                                 </InputGroup>
                                 <ButtonGroup toggle>
-                                    {tipos_busca.map((tipo_busca, idx) => (
+                                    {searchTypes.map((searchType, idx) => (
                                     <ToggleButton
                                         key={idx}
                                         type="radio"
                                         variant="info"
                                         name="radio"
-                                        value={tipo_busca.name}
-                                        checked={this.state.tipo_busca === tipo_busca.name}
-                                        onChange={(e) => this.handleSearch(e.currentTarget.value)}
+                                        value={searchType.name}
+                                        checked={this.state.searchType === searchType.name}
+                                        onChange={(e) => this.handleSearchType(e.currentTarget.value)}
                                     >
-                                        {tipo_busca.name}
+                                        {searchType.name}
                                     </ToggleButton>
                                     ))}
                                 </ButtonGroup>
@@ -123,7 +191,7 @@ class Colaboradores extends Component {
                             <ListaColaboradores colaboradores={this.state.colaboradores} />
                         </Col>
                     </Row>
-                    {this.state.vermais_show === true ?
+                    {this.state.showmore_show === true ?
                     <Row className="justify-content-md-center">
                         <Col md="auto">
                             <Button variant="primary" size="lg" style={{ margin: '2rem'}} onClick={(e) => this.showMore()} >
@@ -135,8 +203,8 @@ class Colaboradores extends Component {
                     <Row className="justify-content-md-center">
                         <Col md="auto">
                             <Paginacao handler={this.handlePagination}
-                                       ultima_pagina={this.state.ultima_pagina}
-                                       size={this.state.size}/>
+                                       current_page={this.state.current_page}
+                                       pages_amount={this.state.pages_amount}/>
                         </Col>
                     </Row>
                 </Jumbotron>
