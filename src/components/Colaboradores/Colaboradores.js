@@ -23,12 +23,14 @@ const tipos_busca = [
     { name: 'Time'},
 ];
 
+const default_item_amount = 6;
+
 class Colaboradores extends Component {
 
     state = {
         colaboradores: [],
         ultima_pagina: 0,
-        size: 6,
+        size: default_item_amount,
         tipo_busca: 'Nome',
         pagina_atual: 0,
         vermais_show: true
@@ -51,6 +53,11 @@ class Colaboradores extends Component {
         let response = await api.get('/colaborador/list', {params: {page: pageNum, size: this.state.size}});
         this.setState({colaboradores: response.data.content});
         this.setState({pagina_atual: pageNum});
+        if(this.state.size >= response.data.totalElements  - default_item_amount || this.state.pagina_atual === response.data.totalPages) {
+            this.setState({vermais_show: false});
+        } else {
+            this.setState({vermais_show: true});
+        }
         this.setState({ultima_pagina: response.data.totalPages});
     }
 
@@ -59,15 +66,15 @@ class Colaboradores extends Component {
     }
 
     async showMore() {
-        this.setState({size: this.state.size += 6});
+        this.setState({size: this.state.size += default_item_amount});
         let response = await api.get('/colaborador/list', {params: {page: this.state.pagina_atual, size: this.state.size}});
-        this.setState({ultima_pagina: response.data.totalPages});
         this.setState({colaboradores: response.data.content});
-        if(this.state.size >= response.data.totalElements) {
+        if(this.state.size >= response.data.totalElements  - default_item_amount || this.state.pagina_atual === response.data.totalPages) {
             this.setState({vermais_show: false});
         } else {
             this.setState({vermais_show: true});
         }
+        this.setState({ultima_pagina: response.data.totalPages});
     }
 
     render() {
