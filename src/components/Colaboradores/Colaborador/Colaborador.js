@@ -8,7 +8,8 @@ class Colaborador extends Component {
 
     render() {
         return <Card style={{ width: '18rem' }}>
-            <Card.Img variant="top" src={this.props.colaborador.foto === null ? no_photo : this.props.colaborador.foto} />
+            <Card.Img style={{ padding: '5px', height: '250px' }} variant="top"
+                      src={this.props.colaborador.foto === null ? no_photo : this.props.colaborador.foto} />
 
             <Card.Body>
                 <Card.Title>{this.props.colaborador.name}</Card.Title>
