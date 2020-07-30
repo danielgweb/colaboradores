@@ -14,13 +14,26 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faUsers} from "@fortawesome/free-solid-svg-icons";
 import {Link} from "react-router-dom";
 import Logout from "../../Login/Logout";
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
+import api from "../../../services/api";
+import _ from 'lodash';
+import Contato from "./Contato";
 
 class Editor extends Component {
 
     state = {
         showModal: null,
-        movieDetails: ''
+        movieDetails: '',
+
+        competencias: [],
     };
+
+    async componentDidMount() {
+        let response = await api.get('/competencia/list');
+        let competencias = _.map(response.data, _.property('name'));
+        this.setState({competencias: competencias})
+    }
 
     constructor(props) {
         super(props);
@@ -59,7 +72,7 @@ class Editor extends Component {
                 <Col lg={4} md={4} sm={4} xl={4} xs={4}>
                     <Row className="justify-content-md-center">
                         <Col md="auto">
-                            <Image src={no_photo} roundedCircle styl={{width:"175px"}}/>
+                            {/*<Image src={no_photo} roundedCircle styl={{width:"175px"}}/>*/}
                         </Col>
                     </Row>
                 </Col>
@@ -105,7 +118,22 @@ class Editor extends Component {
                         </Button>
                         <AdicionarExpProfissional show={this.state.showModal === 'addExp'} onHide={this.hideModal}/>
                         <h2>Competências</h2>
+                        <Autocomplete
+                            multiple
+                            freeSolo
+                            id="tags-standard"
+                            options={this.state.competencias}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    variant="standard"
+                                    label="Adicionar Competências"
+                                    placeholder="Digite enter para incluir uma nova competência"
+                                />
+                            )}
+                        />
                         <h2>Contatos</h2>
+                        {_.times( 3, () => <Contato />)}
                     </Col>
                 </Row>
             </Jumbotron>
