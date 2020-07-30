@@ -192,7 +192,9 @@ class Colaboradores extends Component {
                         </Col>
                         <Col>
                             <Link to="/editor">
-                                <Button variant="primary" size="lg"><FontAwesomeIcon icon={faPlus} /> Novo</Button>{' '}
+                                <Button variant="primary" size="lg" className="float-right">
+                                    <FontAwesomeIcon icon={faPlus} /> Novo
+                                </Button>{' '}
                             </Link>
                         </Col>
                     </Row>

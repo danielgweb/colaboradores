@@ -18,6 +18,8 @@ import _ from 'lodash';
 import ContatoList from "./ContatoList";
 import "./css/Editor.css"
 import ExperienciaList from "./ExperienciaList";
+import MapContainer from "../../Map/googleMaps"
+import geocodeapi from "../../../services/google/geocode";
 
 class Editor extends Component {
 
@@ -30,6 +32,7 @@ class Editor extends Component {
         competencias_colaborador: [],
         experiencias_colaborador: [],
         contatos_colaborador: [],
+        endereco_colaborador: '',
 
         cargos_autocomplete: [],
         times_autocomplete: [],
@@ -37,7 +40,10 @@ class Editor extends Component {
 
         cargo_experiencia: '',
         tecnologias_experiencia: '',
-        atividades_experiencia: ''
+        atividades_experiencia: '',
+
+        add_lat: -15.7940678,
+        add_lng: -47.8850997,
     };
 
     async componentDidMount() {
@@ -55,6 +61,12 @@ class Editor extends Component {
         this.setState({competencias_autocomplete: competenciasList});
     }
 
+    componentDidUpdate (prevProps, prevState) {
+        if(prevState.endereco_colaborador !== this.state.endereco_colaborador) {
+            this.handleMapUpdate();
+        }
+    }
+
     constructor(props) {
         super(props);
         this.showModal = this.showModal.bind(this);
@@ -66,6 +78,9 @@ class Editor extends Component {
         this.atividadesExpHandler = this.atividadesExpHandler.bind(this);
         this.doSave = this.doSave.bind(this);
         this.nameHandler = this.nameHandler.bind(this);
+        this.enderecoHandler = this.enderecoHandler.bind(this);
+        this.getGeocodeFromAddress = this.getGeocodeFromAddress.bind(this);
+        this.handleMapUpdate = this.handleMapUpdate.bind(this);
     }
 
     showModal(id) {
@@ -98,6 +113,10 @@ class Editor extends Component {
         this.setState({nome_colaborador: name.target.value});
     }
 
+    enderecoHandler(endereco) {
+        this.setState({endereco_colaborador: endereco.target.value});
+    }
+
     cargoExpHandler(cargo) {
         this.setState({cargo_experiencia: cargo});
     }
@@ -108,6 +127,20 @@ class Editor extends Component {
 
     atividadesExpHandler(atividades) {
         this.setState({atividades_experiencia: atividades.target.value});
+    }
+
+    async getGeocodeFromAddress(address) {
+        let googlerequest = await geocodeapi.get('',
+            {params: {key: 'AIzaSyAHvglpCXdT3GC5XSvOW7ptgvJoSR2FUzA', address: address}});
+        this.setState({add_lat: googlerequest.data.results[0].geometry.location.lat});
+        this.setState({add_lng: googlerequest.data.results[0].geometry.location.lng});
+    }
+
+    handleMapUpdate() {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+            this.getGeocodeFromAddress(this.state.endereco_colaborador)
+        }, 1000);
     }
 
     async doSave() {
@@ -140,42 +173,42 @@ class Editor extends Component {
                         <Button variant="success" size="lg" onClick={() => this.doSave()} ><FontAwesomeIcon icon={faSave} /> Salvar</Button>{' '}
                     </Col>
                 </Row>
-            <Row>
-                <Col>
-                    <Row>
-                        <Col lg={10}>
-                            <TextField fullWidth id="outlined-basic" label="Nome" variant="outlined"
-                                       onChange={this.nameHandler}
-                                       style={{backgroundColor: "white", marginTop: "5px"}}
-                            />
-                        </Col>
-                        <Col lg={10}>
-                            <Autocomplete
-                                id="cargo"
-                                freeSolo
-                                options={this.state.cargos_autocomplete}
-                                renderInput={(params) => (
-                                    <TextField {...params} label="Cargo" variant="outlined"
-                                               style={{backgroundColor: "white", marginTop: "5px"}}
-                                    />
-                                )}
-                            />
-                        </Col>
-                        <Col lg={10}>
-                            <Autocomplete
-                                id="time"
-                                freeSolo
-                                options={this.state.times_autocomplete}
-                                renderInput={(params) => (
-                                    <TextField {...params} label="Time" variant="outlined"
-                                               style={{backgroundColor: "white", marginTop: "5px"}}
-                                    />
-                                )}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
+                <Row>
+                    <Col>
+                        <Row>
+                            <Col lg={10}>
+                                <TextField fullWidth id="outlined-basic" label="Nome" variant="outlined"
+                                           onChange={this.nameHandler}
+                                           style={{backgroundColor: "white", marginTop: "5px"}}
+                                />
+                            </Col>
+                            <Col lg={10}>
+                                <Autocomplete
+                                    id="cargo"
+                                    freeSolo
+                                    options={this.state.cargos_autocomplete}
+                                    renderInput={(params) => (
+                                        <TextField {...params} label="Cargo" variant="outlined"
+                                                   style={{backgroundColor: "white", marginTop: "5px"}}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                            <Col lg={10}>
+                                <Autocomplete
+                                    id="time"
+                                    freeSolo
+                                    options={this.state.times_autocomplete}
+                                    renderInput={(params) => (
+                                        <TextField {...params} label="Time" variant="outlined"
+                                                   style={{backgroundColor: "white", marginTop: "5px"}}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
                         <h2 className="subtitulo">Experiências Profissionais</h2>
@@ -255,7 +288,21 @@ class Editor extends Component {
                         <ContatoList contatos={this.state.contatos_colaborador}/>
                     </Col>
                 </Row>
+                <Row>
+                    <Col>
+                        <h2 className="subtitulo">Endereço do colaborador</h2>
+                        <TextField fullWidth id="outlined-basic" label="Endereço" variant="outlined"
+                                   onChange={this.enderecoHandler}
+                                   style={{backgroundColor: "white", marginTop: "5px"}}
+                        />
+                    </Col>
+                </Row>
             </Jumbotron>
+            <Row>
+                <Col>
+                    <MapContainer containerStyle={{width: '100px', height:'100px'}} lat={this.state.add_lat} lng={this.state.add_lng}/>
+                </Col>
+            </Row>
         </Container>
     }
 }
