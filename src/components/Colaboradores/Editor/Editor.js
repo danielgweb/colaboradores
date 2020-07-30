@@ -2,11 +2,9 @@ import React, {Component} from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Image from "react-bootstrap/Image";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import Form from "react-bootstrap/Form";
-import no_photo from "../../../no_photo.png";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Jumbotron from "react-bootstrap/Jumbotron";
@@ -18,7 +16,8 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import api from "../../../services/api";
 import _ from 'lodash';
-import Contato from "./Contato";
+import ContatoList from "./ContatoList";
+import "./css/Editor.css"
 
 class Editor extends Component {
 
@@ -26,19 +25,41 @@ class Editor extends Component {
         showModal: null,
         movieDetails: '',
 
+        nome: '',
+        cargos: [],
+        times: [],
+        experiencias: [],
         competencias: [],
+        contatos: [],
+        cargo_exp: '',
+        tecnologias_exp: '',
+        atividades_exp: ''
     };
 
     async componentDidMount() {
-        let response = await api.get('/competencia/list');
-        let competencias = _.map(response.data, _.property('name'));
-        this.setState({competencias: competencias})
+        let cargos = await api.get('/cargo/list');
+        let cargosList = _.map(cargos.data, _.property('name'));
+
+        let times = await api.get('/time/list');
+        let timeList = _.map(times.data, _.property('name'));
+
+        let competencias = await api.get('/competencia/list');
+        let competenciasList = _.map(competencias.data, _.property('name'));
+
+        this.setState({cargos: cargosList});
+        this.setState({times: timeList});
+        this.setState({competencias: competenciasList});
     }
 
     constructor(props) {
         super(props);
         this.showModal = this.showModal.bind(this);
         this.hideModal = this.hideModal.bind(this);
+        this.addContact = this.addContact.bind(this);
+        this.addExperiencia = this.addExperiencia.bind(this);
+        this.cargoExpHandler = this.cargoExpHandler.bind(this);
+        this.tecnologiasExpHandler = this.tecnologiasExpHandler.bind(this);
+        this.atividadesExpHandler = this.atividadesExpHandler.bind(this);
     }
 
     showModal(id) {
@@ -49,13 +70,41 @@ class Editor extends Component {
         this.setState({showModal: null});
     }
 
+    addContact() {
+        this.setState({contatos: this.state.contatos.concat({})})
+    }
+
+    addExperiencia(){
+        this.hideModal()
+        this.setState({experiencias: this.state.experiencias.concat({
+                cargo: this.state.cargo_exp,
+                atividades: this.state.atividades_exp,
+                tecnologias: this.state.tecnologias_exp
+        })});
+        this.setState({cargo_exp: ''});
+        this.setState({tecnologias_exp: ''});
+        this.setState({atividades_exp: ''});
+    }
+
+    cargoExpHandler(cargo) {
+        this.setState({cargo_exp: cargo.target.value});
+    }
+
+    tecnologiasExpHandler(tecnologias) {
+        this.setState({tecnologias_exp: tecnologias.target.value});
+    }
+
+    atividadesExpHandler(atividades) {
+        this.setState({atividades_exp: atividades.target.value});
+    }
+
     render() {
         return <Container>
             <Jumbotron>
                 <Logout />
                 <Row>
                     <Col>
-                        <h1 style={{ marginBottom: '2rem' }}><FontAwesomeIcon icon={faUsers}/> Adicionar Colaborador</h1>
+                        <h1 className="titulo"><FontAwesomeIcon icon={faUsers}/> Adicionar Colaborador</h1>
                     </Col>
                 </Row>
                 <Row style={{ marginBottom: '2rem' }}>
@@ -68,56 +117,96 @@ class Editor extends Component {
                         <Button variant="primary" className="float-right">Salvar</Button>{' '}
                     </Col>
                 </Row>
-            <Row lg={1} md={1} sm={1} xl={1} xs={1}>
-                <Col lg={4} md={4} sm={4} xl={4} xs={4}>
-                    <Row className="justify-content-md-center">
-                        <Col md="auto">
-                            {/*<Image src={no_photo} roundedCircle styl={{width:"175px"}}/>*/}
-                        </Col>
-                    </Row>
-                </Col>
-                <Col lg={8} md={8} sm={8} xl={8} xs={8}>
-                    <Row lg={1} md={1} sm={1} xl={1} xs={1}>
+            <Row>
+                <Col>
+                    <Row>
                         <Col lg={10}>
-                            <InputGroup size="lg">
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text id="inputGroup-sizing-lg">Nome</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <FormControl aria-label="Large" aria-describedby="inputGroup-sizing-sm" />
-                            </InputGroup>
+                            <TextField fullWidth id="outlined-basic" label="Nome" variant="outlined"
+                                       style={{backgroundColor: "white", marginTop: "5px"}}
+                            />
                         </Col>
                         <Col lg={10}>
-                            <InputGroup>
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text id="inputGroup-sizing-lg">Cargo</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <Form.Control as="select">
-                                    <option>Desenvolvedor Java</option>
-                                    <option>Desenvolvedor ReactJS</option>
-                                </Form.Control>
-                            </InputGroup>
+                            <Autocomplete
+                                id="cargo"
+                                freeSolo
+                                options={this.state.cargos}
+                                renderInput={(params) => (
+                                    <TextField {...params} label="Cargo" variant="outlined"
+                                               style={{backgroundColor: "white", marginTop: "5px"}}
+                                    />
+                                )}
+                            />
                         </Col>
                         <Col lg={10}>
-                            <InputGroup>
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text id="inputGroup-sizing-lg">Time</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <Form.Control as="select">
-                                    <option>Squad Desenvolvimento</option>
-                                    <option>Squad Orçamento</option>
-                                </Form.Control>
-                            </InputGroup></Col>
+                            <Autocomplete
+                                id="time"
+                                freeSolo
+                                options={this.state.times}
+                                renderInput={(params) => (
+                                    <TextField {...params} label="Time" variant="outlined"
+                                               style={{backgroundColor: "white", marginTop: "5px"}}
+                                    />
+                                )}
+                            />
+                        </Col>
                     </Row>
                 </Col>
             </Row>
                 <Row>
                     <Col>
-                        <h2>Experiências Profissionais</h2>
+                        <h2 className="subtitulo">Experiências Profissionais</h2>
                         <Button variant="primary" onClick={() => this.showModal('addExp')}>
-                            Adicionar
+                            Adicionar experiência
                         </Button>
-                        <AdicionarExpProfissional show={this.state.showModal === 'addExp'} onHide={this.hideModal}/>
-                        <h2>Competências</h2>
+                        <Modal
+                            show={this.state.showModal === 'addExp'}
+                            onHide={this.hideModal}
+                            size="lg"
+                            aria-labelledby="contained-modal-title-vcenter"
+                            backdrop="static"
+                            centered
+                        >
+                            <Modal.Header closeButton>
+                                <Modal.Title id="contained-modal-title-vcenter">
+                                    Adicionar Experiência Profissional
+                                </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <Container>
+                                    <Row>
+                                        <Col>
+                                            <Autocomplete
+                                                id="cargo"
+                                                freeSolo
+                                                options={this.state.cargos}
+                                                renderInput={(params) => (
+                                                    <TextField {...params} label="Cargo" variant="outlined"
+                                                               style={{backgroundColor: "white", marginTop: "5px"}}
+                                                               onChange={this.cargoExpHandler}
+                                                    />
+                                                )}
+                                            />
+                                            <InputGroup>
+                                                <InputGroup.Prepend>
+                                                    <InputGroup.Text>Atividades</InputGroup.Text>
+                                                </InputGroup.Prepend>
+                                                <FormControl as="textarea" aria-label="Atividades" onChange={this.atividadesExpHandler} />
+                                            </InputGroup>
+                                            <InputGroup>
+                                                <InputGroup.Prepend>
+                                                    <InputGroup.Text>Tecnologias</InputGroup.Text>
+                                                </InputGroup.Prepend>
+                                                <FormControl as="textarea" aria-label="Tecnologias" onChange={this.tecnologiasExpHandler}/>
+                                            </InputGroup>
+                                        </Col>
+                                    </Row>
+                                </Container>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button onClick={() => this.addExperiencia()}>Adicionar</Button>
+                            </Modal.Footer>
+                        </Modal>
+                        <h2 className="subtitulo">Competências</h2>
                         <Autocomplete
                             multiple
                             freeSolo
@@ -132,41 +221,16 @@ class Editor extends Component {
                                 />
                             )}
                         />
-                        <h2>Contatos</h2>
-                        {_.times( 3, () => <Contato />)}
+                        <h2 className="subtitulo">Contatos</h2>
+                        <Button variant="primary" onClick={() => this.addContact()}>
+                            Adicionar contato
+                        </Button>
+                        <ContatoList contatos={this.state.contatos}/>
                     </Col>
                 </Row>
             </Jumbotron>
         </Container>
     }
-}
-
-function AdicionarExpProfissional(props) {
-    return (
-        <Modal
-            {...props}
-            size="lg"
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-        >
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">
-                    Adicionar Experiência Profissional
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <h4>Centered Modal</h4>
-                <p>
-                    Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-                    dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-                    consectetur ac, vestibulum at eros.
-                </p>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button onClick={props.onHide}>Close</Button>
-            </Modal.Footer>
-        </Modal>
-    );
 }
 
 export default Editor;
