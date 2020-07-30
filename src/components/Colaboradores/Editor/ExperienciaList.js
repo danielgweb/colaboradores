@@ -1,15 +1,15 @@
 import React, {Component} from "react";
-import Contato from "./Contato";
+import Experiencia from "./Experiencia";
 
-class ContatoList extends Component {
+class ExperienciaList extends Component {
 
     render() {
         return <>
-            {this.props.contatos.map(contato => (
-                <Contato contato={contato} />
+            {this.props.experiencias.map(experiencia => (
+                <Experiencia experiencia={experiencia} />
             ))}
         </>;
     }
 }
 
-export default ContatoList;
+export default ExperienciaList;

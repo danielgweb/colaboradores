@@ -1,4 +1,3 @@
-import Card from "react-bootstrap/Card";
 import React, {Component} from "react";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -7,7 +6,7 @@ import Form from "react-bootstrap/Form";
 class Contato extends Component {
 
     render() {
-        return <Row>
+        return <Row className='mt-1'>
             <Col>
                 <Form.Control as="select">
                     <option>E-mail</option>

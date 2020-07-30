@@ -4,12 +4,11 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
-import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Jumbotron from "react-bootstrap/Jumbotron";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faUsers} from "@fortawesome/free-solid-svg-icons";
+import {faUsers, faSave, faChevronLeft} from "@fortawesome/free-solid-svg-icons";
 import {Link} from "react-router-dom";
 import Logout from "../../Login/Logout";
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -18,22 +17,27 @@ import api from "../../../services/api";
 import _ from 'lodash';
 import ContatoList from "./ContatoList";
 import "./css/Editor.css"
+import ExperienciaList from "./ExperienciaList";
 
 class Editor extends Component {
 
     state = {
         showModal: null,
-        movieDetails: '',
 
-        nome: '',
-        cargos: [],
-        times: [],
-        experiencias: [],
-        competencias: [],
-        contatos: [],
-        cargo_exp: '',
-        tecnologias_exp: '',
-        atividades_exp: ''
+        nome_colaborador: '',
+        cargo_colaborador: '',
+        time_colaborador: '',
+        competencias_colaborador: [],
+        experiencias_colaborador: [],
+        contatos_colaborador: [],
+
+        cargos_autocomplete: [],
+        times_autocomplete: [],
+        competencias_autocomplete: [],
+
+        cargo_experiencia: '',
+        tecnologias_experiencia: '',
+        atividades_experiencia: ''
     };
 
     async componentDidMount() {
@@ -46,9 +50,9 @@ class Editor extends Component {
         let competencias = await api.get('/competencia/list');
         let competenciasList = _.map(competencias.data, _.property('name'));
 
-        this.setState({cargos: cargosList});
-        this.setState({times: timeList});
-        this.setState({competencias: competenciasList});
+        this.setState({cargos_autocomplete: cargosList});
+        this.setState({times_autocomplete: timeList});
+        this.setState({competencias_autocomplete: competenciasList});
     }
 
     constructor(props) {
@@ -60,6 +64,8 @@ class Editor extends Component {
         this.cargoExpHandler = this.cargoExpHandler.bind(this);
         this.tecnologiasExpHandler = this.tecnologiasExpHandler.bind(this);
         this.atividadesExpHandler = this.atividadesExpHandler.bind(this);
+        this.doSave = this.doSave.bind(this);
+        this.nameHandler = this.nameHandler.bind(this);
     }
 
     showModal(id) {
@@ -70,51 +76,68 @@ class Editor extends Component {
         this.setState({showModal: null});
     }
 
-    addContact() {
-        this.setState({contatos: this.state.contatos.concat({})})
+    addContact(tipo, valor) {
+        this.setState({contatos_colaborador: this.state.contatos_colaborador.concat({
+                tipo: tipo, valor: valor
+            })})
     }
 
     addExperiencia(){
-        this.hideModal()
-        this.setState({experiencias: this.state.experiencias.concat({
-                cargo: this.state.cargo_exp,
-                atividades: this.state.atividades_exp,
-                tecnologias: this.state.tecnologias_exp
+        this.hideModal();
+        this.setState({experiencias_colaborador: this.state.experiencias_colaborador.concat({
+                cargo: this.state.cargo_experiencia,
+                atividades: this.state.atividades_experiencia,
+                tecnologias: this.state.tecnologias_experiencia
         })});
-        this.setState({cargo_exp: ''});
-        this.setState({tecnologias_exp: ''});
-        this.setState({atividades_exp: ''});
+        this.setState({cargo_experiencia: ''});
+        this.setState({tecnologias_experiencia: ''});
+        this.setState({atividades_experiencia: ''});
+    }
+
+    nameHandler(name) {
+        this.setState({nome_colaborador: name.target.value});
     }
 
     cargoExpHandler(cargo) {
-        this.setState({cargo_exp: cargo.target.value});
+        this.setState({cargo_experiencia: cargo});
     }
 
     tecnologiasExpHandler(tecnologias) {
-        this.setState({tecnologias_exp: tecnologias.target.value});
+        this.setState({tecnologias_experiencia: tecnologias.target.value});
     }
 
     atividadesExpHandler(atividades) {
-        this.setState({atividades_exp: atividades.target.value});
+        this.setState({atividades_experiencia: atividades.target.value});
+    }
+
+    async doSave() {
+        let colaborador = {
+            name: this.state.nome_colaborador,
+            cargo: this.state.cargo_colaborador,
+            time: this.state.time_colaborador,
+            competencias: this.state.competencias_colaborador,
+            experiencias: this.state.experiencias_colaborador,
+            contatos: this.state.contatos_colaborador,
+        };
+        let saveResponse = await api.post('/colaborador/add', colaborador);
+        console.log(saveResponse);
     }
 
     render() {
         return <Container>
+            <Logout />
+            <Row>
+                <Col>
+                    <h1 className="titulo"><FontAwesomeIcon icon={faUsers}/> Adicionar Colaborador</h1>
+                </Col>
+            </Row>
             <Jumbotron>
-                <Logout />
-                <Row>
-                    <Col>
-                        <h1 className="titulo"><FontAwesomeIcon icon={faUsers}/> Adicionar Colaborador</h1>
-                    </Col>
-                </Row>
                 <Row style={{ marginBottom: '2rem' }}>
                     <Col>
                         <Link to="/colaboradores">
-                            <Button variant="secondary">Voltar</Button>{' '}
+                            <Button variant="secondary" size="lg"><FontAwesomeIcon icon={faChevronLeft} /> Voltar</Button>{' '}
                         </Link>
-                    </Col>
-                    <Col>
-                        <Button variant="primary" className="float-right">Salvar</Button>{' '}
+                        <Button variant="success" size="lg" onClick={() => this.doSave()} ><FontAwesomeIcon icon={faSave} /> Salvar</Button>{' '}
                     </Col>
                 </Row>
             <Row>
@@ -122,6 +145,7 @@ class Editor extends Component {
                     <Row>
                         <Col lg={10}>
                             <TextField fullWidth id="outlined-basic" label="Nome" variant="outlined"
+                                       onChange={this.nameHandler}
                                        style={{backgroundColor: "white", marginTop: "5px"}}
                             />
                         </Col>
@@ -129,7 +153,7 @@ class Editor extends Component {
                             <Autocomplete
                                 id="cargo"
                                 freeSolo
-                                options={this.state.cargos}
+                                options={this.state.cargos_autocomplete}
                                 renderInput={(params) => (
                                     <TextField {...params} label="Cargo" variant="outlined"
                                                style={{backgroundColor: "white", marginTop: "5px"}}
@@ -141,7 +165,7 @@ class Editor extends Component {
                             <Autocomplete
                                 id="time"
                                 freeSolo
-                                options={this.state.times}
+                                options={this.state.times_autocomplete}
                                 renderInput={(params) => (
                                     <TextField {...params} label="Time" variant="outlined"
                                                style={{backgroundColor: "white", marginTop: "5px"}}
@@ -155,7 +179,8 @@ class Editor extends Component {
                 <Row>
                     <Col>
                         <h2 className="subtitulo">Experiências Profissionais</h2>
-                        <Button variant="primary" onClick={() => this.showModal('addExp')}>
+                        <ExperienciaList experiencias={this.state.experiencias_colaborador}/>
+                        <Button className="botao" variant="primary" onClick={() => this.showModal('addExp')}>
                             Adicionar experiência
                         </Button>
                         <Modal
@@ -178,11 +203,13 @@ class Editor extends Component {
                                             <Autocomplete
                                                 id="cargo"
                                                 freeSolo
-                                                options={this.state.cargos}
+                                                options={this.state.cargos_autocomplete}
+                                                onInputChange={(event, newInputValue) => {
+                                                    this.cargoExpHandler(newInputValue);
+                                                }}
                                                 renderInput={(params) => (
                                                     <TextField {...params} label="Cargo" variant="outlined"
                                                                style={{backgroundColor: "white", marginTop: "5px"}}
-                                                               onChange={this.cargoExpHandler}
                                                     />
                                                 )}
                                             />
@@ -211,7 +238,7 @@ class Editor extends Component {
                             multiple
                             freeSolo
                             id="tags-standard"
-                            options={this.state.competencias}
+                            options={this.state.competencias_autocomplete}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
@@ -222,10 +249,10 @@ class Editor extends Component {
                             )}
                         />
                         <h2 className="subtitulo">Contatos</h2>
-                        <Button variant="primary" onClick={() => this.addContact()}>
+                        <Button className="botao" variant="primary" onClick={() => this.addContact()}>
                             Adicionar contato
                         </Button>
-                        <ContatoList contatos={this.state.contatos}/>
+                        <ContatoList contatos={this.state.contatos_colaborador}/>
                     </Col>
                 </Row>
             </Jumbotron>

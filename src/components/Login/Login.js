@@ -60,12 +60,12 @@ class Login extends Component {
     render() {
         return (
             <Container>
+                <Row>
+                    <Col>
+                        <h1 className="titulo"><FontAwesomeIcon icon={faSignInAlt}/> Entrar</h1>
+                    </Col>
+                </Row>
                 <Jumbotron>
-                    <Row>
-                        <Col>
-                            <h1 style={{ marginBottom: '2rem' }}><FontAwesomeIcon icon={faSignInAlt}/> Entrar</h1>
-                        </Col>
-                    </Row>
                     <Row className="justify-content-md-center">
                         <Col md="7">
                             <Form onSubmit={this.handleSignIn}>

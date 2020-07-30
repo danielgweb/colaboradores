@@ -153,13 +153,13 @@ class Colaboradores extends Component {
     render() {
         return (
             <Container>
+                <Logout />
+                <Row>
+                    <Col>
+                        <h1 style={{ marginBottom: '2rem' }}><FontAwesomeIcon icon={faUsers}/> Colaboradores</h1>
+                    </Col>
+                </Row>
                 <Jumbotron>
-                    <Logout />
-                    <Row>
-                        <Col>
-                            <h1 style={{ marginBottom: '2rem' }}><FontAwesomeIcon icon={faUsers}/> Colaboradores</h1>
-                        </Col>
-                    </Row>
                     <Row >
                         <Col>
                             <InputGroup className="mb-1">
@@ -192,7 +192,7 @@ class Colaboradores extends Component {
                         </Col>
                         <Col>
                             <Link to="/editor">
-                                <Button variant="primary"><FontAwesomeIcon icon={faPlus} /> Novo</Button>{' '}
+                                <Button variant="primary" size="lg"><FontAwesomeIcon icon={faPlus} /> Novo</Button>{' '}
                             </Link>
                         </Col>
                     </Row>

@@ -11,7 +11,9 @@ function Logout() {
     return <Row>
         <Col>
             <Link to="/" onClick={() => logout()}>
-                <Button variant="outline-secondary" className="float-right"><FontAwesomeIcon icon={faSignOutAlt}/> Sair</Button>{' '}
+                <Button variant="outline-secondary" className="float-right botao">
+                    <FontAwesomeIcon icon={faSignOutAlt}/> Sair
+                </Button>{' '}
             </Link>
         </Col>
     </Row>;
