@@ -44,12 +44,12 @@ class Colaboradores extends Component {
         let response = await api.get('/colaborador/list',
             {params: {page: 0, size: default_item_amount}});
 
-        this.setState({colaboradores: response.data.content});
-        this.setState({pages_amount: response.data.totalPages});
-        this.setState({size: response.data.size});
+        this.setState({colaboradores: response.data.data.content});
+        this.setState({pages_amount: response.data.data.totalPages});
+        this.setState({size: response.data.data.size});
         if(this.state.current_page === this.state.pages_amount) {
             this.setState({showmore_show: false});
-        } else if(response.data.totalElements >= default_item_amount) {
+        } else if(response.data.data.totalElements >= default_item_amount) {
             this.setState({showmore_show: true});
         }
     }
@@ -73,16 +73,16 @@ class Colaboradores extends Component {
                 }
             });
         this.setState({current_page: pageNum});
-        this.setState({size: response.data.size});
-        this.setState({pages_amount: response.data.totalPages});
+        this.setState({size: response.data.data.size});
+        this.setState({pages_amount: response.data.data.totalPages});
 
         if(this.state.current_page === this.state.pages_amount) {
             this.setState({showmore_show: false});
-        } else if(response.data.totalElements >= default_item_amount) {
+        } else if(response.data.data.totalElements >= default_item_amount) {
             this.setState({showmore_show: true});
         }
 
-        this.setState({colaboradores: response.data.content});
+        this.setState({colaboradores: response.data.data.content});
     }
 
     handleSearchType(type) {
@@ -102,17 +102,17 @@ class Colaboradores extends Component {
         this.setState({searchType_holder: this.state.searchType});
         this.setState({search_holder: this.state.search});
         this.setState({current_page: 1});
-        this.setState({size: response.data.size});
+        this.setState({size: response.data.data.size});
         this.setState({show_size: 1});
-        this.setState({pages_amount: response.data.totalPages});
+        this.setState({pages_amount: response.data.data.totalPages});
 
         if(this.state.current_page === this.state.pages_amount) {
             this.setState({showmore_show: false});
-        } else if(response.data.totalElements >= default_item_amount) {
+        } else if(response.data.data.totalElements >= default_item_amount) {
             this.setState({showmore_show: true});
         }
 
-        this.setState({colaboradores: response.data.content});
+        this.setState({colaboradores: response.data.data.content});
     }
 
     handleSearchText(event) {
@@ -133,15 +133,15 @@ class Colaboradores extends Component {
                     }
             });
         this.setState({current_page: current_page});
-        this.setState({pages_amount: response.data.totalPages});
-        this.setState({size: response.data.size});
+        this.setState({pages_amount: response.data.data.totalPages});
+        this.setState({size: response.data.data.size});
         if(this.state.current_page === this.state.pages_amount) {
             this.setState({showmore_show: false});
-        } else if(response.data.totalElements >= default_item_amount) {
+        } else if(response.data.data.totalElements >= default_item_amount) {
             this.setState({showmore_show: true});
         }
         this.setState({show_size: this.state.show_size += 1});
-        this.setState({colaboradores: response.data.content});
+        this.setState({colaboradores: response.data.data.content});
     }
 
     async handleKeyDown(e) {

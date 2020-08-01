@@ -6,6 +6,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Alert from "react-bootstrap/Alert";
 import Jumbotron from "react-bootstrap/Jumbotron";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faUsers, faSave, faChevronLeft} from "@fortawesome/free-solid-svg-icons";
@@ -38,23 +39,24 @@ class Editor extends Component {
         times_autocomplete: [],
         competencias_autocomplete: [],
 
-        cargo_experiencia: '',
+        cargo_experiencia: {},
         tecnologias_experiencia: '',
         atividades_experiencia: '',
 
+        map_status: '',
         add_lat: -15.7940678,
         add_lng: -47.8850997,
     };
 
     async componentDidMount() {
         let cargos = await api.get('/cargo/list');
-        let cargosList = _.map(cargos.data, _.property('name'));
+        let cargosList = _.map(cargos.data.data, _.property('name'));
 
         let times = await api.get('/time/list');
-        let timeList = _.map(times.data, _.property('name'));
+        let timeList = _.map(times.data.data, _.property('name'));
 
         let competencias = await api.get('/competencia/list');
-        let competenciasList = _.map(competencias.data, _.property('name'));
+        let competenciasList = _.map(competencias.data.data, _.property('name'));
 
         this.setState({cargos_autocomplete: cargosList});
         this.setState({times_autocomplete: timeList});
@@ -83,6 +85,7 @@ class Editor extends Component {
         this.handleMapUpdate = this.handleMapUpdate.bind(this);
         this.cargoColHandler = this.cargoColHandler.bind(this);
         this.timeColHandler = this.timeColHandler.bind(this);
+        this.competenciaHandler = this.competenciaHandler.bind(this);
     }
 
     showModal(id) {
@@ -119,6 +122,11 @@ class Editor extends Component {
         this.setState({endereco_colaborador: endereco.target.value});
     }
 
+    competenciaHandler(competencias) {
+        let competenciasTransform = _.map(competencias, (name) => ({name: name}));
+        this.setState({competencias_colaborador: competenciasTransform});
+    }
+
     timeColHandler(time) {
         this.setState({time_colaborador: {name: time}});
     }
@@ -128,7 +136,7 @@ class Editor extends Component {
     }
 
     cargoExpHandler(cargo) {
-        this.setState({cargo_experiencia: cargo});
+        this.setState({cargo_experiencia: {name: cargo}});
     }
 
     tecnologiasExpHandler(tecnologias) {
@@ -140,10 +148,18 @@ class Editor extends Component {
     }
 
     async getGeocodeFromAddress(address) {
-        let googlerequest = await geocodeapi.get('',
-            {params: {key: 'AIzaSyAHvglpCXdT3GC5XSvOW7ptgvJoSR2FUzA', address: address}});
-        this.setState({add_lat: googlerequest.data.results[0].geometry.location.lat});
-        this.setState({add_lng: googlerequest.data.results[0].geometry.location.lng});
+        var self = this;
+        await geocodeapi.get('',
+            {params: {key: 'AIzaSyAHvglpCXdT3GC5XSvOW7ptgvJoSR2FUzA', address: address}})
+        .then(function(response){
+            if(response.data.status !== "ZERO_RESULTS") {
+                self.setState({add_lat: response.data.results[0].geometry.location.lat});
+                self.setState({add_lng: response.data.results[0].geometry.location.lng});
+                self.setState({map_status: ''});
+            } else {
+                self.setState({map_status: 'Endereço não localizado!'});
+            }
+        });
     }
 
     handleMapUpdate() {
@@ -288,6 +304,9 @@ class Editor extends Component {
                             freeSolo
                             id="tags-standard"
                             options={this.state.competencias_autocomplete}
+                            onChange={(event, newInputValue) => {
+                                this.competenciaHandler(newInputValue);
+                            }}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
@@ -311,6 +330,11 @@ class Editor extends Component {
                                    onChange={this.enderecoHandler}
                                    style={{backgroundColor: "white", marginTop: "5px"}}
                         />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        {this.state.map_status !== '' ? <Alert variant='info'>{this.state.map_status}</Alert> : null }
                     </Col>
                 </Row>
             </Jumbotron>

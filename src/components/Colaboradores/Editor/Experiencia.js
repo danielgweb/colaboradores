@@ -7,7 +7,7 @@ class Experiencia extends Component {
     render() {
         return <Row>
                 <Col>
-                    Cargo: {this.props.experiencia.cargo}
+                    Cargo: {this.props.experiencia.cargo.name}
                 </Col>
                 <Col>
                     Atividades: {this.props.experiencia.atividades}
