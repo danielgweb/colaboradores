@@ -8,6 +8,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import Jumbotron from "react-bootstrap/Jumbotron";
+import Spinner from "react-bootstrap/Spinner";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faUsers, faSave, faChevronLeft} from "@fortawesome/free-solid-svg-icons";
 import {Link} from "react-router-dom";
@@ -46,6 +47,10 @@ class Editor extends Component {
         map_status: '',
         add_lat: -15.7940678,
         add_lng: -47.8850997,
+
+        save_status: 'done',
+        save_text: 'Salvar',
+        save_variant: 'primary',
     };
 
     async componentDidMount() {
@@ -178,8 +183,21 @@ class Editor extends Component {
             experiencias: this.state.experiencias_colaborador,
             contatos: this.state.contatos_colaborador,
         };
-        let saveResponse = await api.post('/colaborador/add', colaborador);
-        console.log(saveResponse);
+        var self = this;
+        self.setState({save_status: 'loading'});
+        self.setState({save_text: 'Salvando...'});
+        await api.post('/colaborador/add', colaborador)
+        .then(function(response){
+            self.setState({save_status: 'done'});
+            self.setState({save_variant: 'success'});
+            self.setState({save_text: 'Salvo'});
+        })
+        .catch(function (error) {
+            self.setState({save_status: 'done'});
+            self.setState({save_variant: 'danger'});
+            self.setState({save_text: 'Erro'});
+            console.log(error);
+        });
     }
 
     render() {
@@ -196,7 +214,20 @@ class Editor extends Component {
                         <Link to="/colaboradores">
                             <Button variant="secondary" size="lg"><FontAwesomeIcon icon={faChevronLeft} /> Voltar</Button>{' '}
                         </Link>
-                        <Button variant="success" size="lg" onClick={() => this.doSave()} ><FontAwesomeIcon icon={faSave} /> Salvar</Button>{' '}
+                        <Button variant={this.state.save_variant} size="lg" onClick={() => this.doSave()} >
+
+                            {this.state.save_status === 'done' ?
+                                <FontAwesomeIcon icon={faSave}/> :
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                />
+                            }
+                            {' '} {this.state.save_text}
+                        </Button>{' '}
                     </Col>
                 </Row>
                 <Row>
